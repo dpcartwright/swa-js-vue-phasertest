@@ -14,6 +14,8 @@ export default class Player extends MatterEntity {
         this.isAttacking = false;
         this.attackingCooldown = false;
         this.attackAngle = 0;
+        this.bowCharging = 0;
+        this.inputMouse = this.scene.input.activePointer;
         //this.inventory = new Inventory();
 
         //Weapon
@@ -100,6 +102,8 @@ export default class Player extends MatterEntity {
             this.anims.play('idle', true);
         }
         this.weaponUpdate();
+        //console.log(this.leftMouseDown);
+        //console.log(this.rightMouseDown);
     }
 
     weaponUpdate() {
@@ -116,6 +120,19 @@ export default class Player extends MatterEntity {
         }
         switch (this.holdingWeapon.weapon_behaviour) {
             case "bow":
+                this.aimingAngle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
+                if (this.inputMouse.buttons === 1) {
+                    this.bowCharging += 1; // left click
+                    console.log(`bowCharging: ${this.bowCharging}`);
+                }
+                /*
+                let speed = 3;
+                let angle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
+                const velocityVect = new Phaser.Math.Vector2();
+                velocityVect.setToPolar(angle);
+
+                this.scene.projectiles.push(new Projectile({ scene: this.scene, x: this.x, y: this.y, texture: 'projectiles', frame: `${name}_1_1`, scale: 0.5, angle: angle, name: projectileType, velocityVect: velocityVect, speed: speed, parentEntity: this }));
+                */
                 break;
             case "sword":
                 break;
