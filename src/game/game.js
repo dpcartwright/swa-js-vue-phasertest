@@ -1,21 +1,31 @@
 import Phaser from 'phaser'
+import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin"
 import BootScene from '@/game/scenes/BootScene'
 import PlayScene from '@/game/scenes/PlayScene'
 
 function launch(containerId) {
   return new Phaser.Game({
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 640,
+    height: 480,
     parent: containerId,
     physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { y: 300 },
-        debug: false
+      default: 'matter',
+      matter: {
+        debug: false,
+        gravity: { y: 0 },
       }
     },
-    scene: [BootScene, PlayScene]
+    scene: [BootScene, PlayScene],
+    plugins: {
+      scene: [
+        {
+          plugin: PhaserMatterCollisionPlugin,
+          key: 'matterCollision',
+          mapping: 'matterCollision'
+        }
+      ]
+    }
   })
 }
 

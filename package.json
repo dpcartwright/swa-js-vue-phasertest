@@ -11,6 +11,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "phaser": "^3.55.2",
+    "phaser-matter-collision-plugin": "^1.0.0",
     "vue": "^3.0.0"
   },
   "devDependencies": {
