@@ -76,11 +76,13 @@ export default class Player extends MatterEntity {
             this.anims.play('idle', true);
         }
         this.weaponUpdate();
+        if (this.dashParticle) this.dashParticle.x = this.x - 15;
+        if (this.dashParticle) this.dashParticle.y = this.y + 13;
     }
 
     weaponUpdate() {
-        let aimingAt = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
-        var deg = Phaser.Math.RadToDeg(aimingAt);
+        let aimingDirection = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
+        var deg = Phaser.Math.RadToDeg(aimingDirection);
         if (!this.flipX) {
             this.spriteWeapon.setOrigin(this.holdingWeapon.holding_origin_x, this.holdingWeapon.holding_origin_y);
             this.spriteWeapon.setAngle(this.holdingWeapon.holding_angle + deg);
@@ -102,11 +104,15 @@ export default class Player extends MatterEntity {
     }
 
     dashForward() {
-        setTimeout(() => {
-            this.isDashing = false;
-            this.dashingCooldown = true;
-            setTimeout(() => this.dashingCooldown = false, 1000);
-        }, 250);
+        if (!this.isDashing) {
+
+
+            setTimeout(() => {
+                this.isDashing = false;
+                this.dashingCooldown = true;
+                setTimeout(() => this.dashingCooldown = false, 1000);
+            }, 250);
+        }
     }
 
 

@@ -6,16 +6,17 @@ import PlayScene from '@/game/scenes/PlayScene'
 function launch(containerId) {
   return new Phaser.Game({
     type: Phaser.AUTO,
-    width: 640,
-    height: 480,
+    width: 960,
+    height: 720,
     parent: containerId,
+    pixelArt: true,
     scale: {
-      zoom: 2,
+      zoom: 1.,
     },
     physics: {
       default: 'matter',
       matter: {
-        debug: true,
+        debug: false,
         gravity: { y: 0 },
       }
     },

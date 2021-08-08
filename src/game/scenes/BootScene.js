@@ -21,6 +21,8 @@ export default class BootScene extends Scene {
     this.load.spritesheet('items', items, { frameWidth: 48, frameHeight: 48 });
     this.load.atlas('alchemist', alchemist_img, alchemist_atlas);
     this.load.animation('alchemist_anim', alchemist_anim);
+    this.load.atlas('dasheffect', dasheffect_img, dasheffect_atlas);
+    this.load.animation('dasheffect_anim', dasheffect_anim);
   }
 
   create() {
