@@ -6,6 +6,7 @@ export default class Player extends MatterEntity {
     constructor(data) {
         let { scene, x, y, texture, frame } = data;
         super({ ...data, health: 20, drops: [], name: 'player' });
+        this.scene = scene;
         this.touching = [];
         this.isDashing = false;
         this.dashingCooldown = false;
@@ -50,7 +51,30 @@ export default class Player extends MatterEntity {
             this.dashAngle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
         }
         if (!this.dashingCooldown && (this.inputKeys.dash.isDown || this.isDashing)) {
-            this.dashForward();
+            if (!this.isDashing) {
+                let particles = this.scene.add.particles('smoke');
+
+                particles.createEmitter({
+                    quantity: 10,
+                    speedY: { min: 20, max: 50 },
+                    speedX: { min: 20, max: 50 },
+                    accelerationY: 1000,
+                    lifespan: { min: 100, max: 300 },
+                    alpha: { start: 0.5, end: 0, ease: "Sine.ease" },
+                    scale: { start: 0.005, end: 0.0005 },
+                    blendMode: 'ADD',
+                    frequency: 50,
+                    follow: this,
+                    followOffset: { y: 14, x: -5 }
+                })
+
+                setTimeout(() => {
+                    particles.destroy();
+                    this.isDashing = false;
+                    this.dashingCooldown = true;
+                    setTimeout(() => this.dashingCooldown = false, 1000);
+                }, 250);
+            }
             this.isDashing = true;
             speed = 5.5;
             playerVelocity.setToPolar(this.dashAngle);
@@ -76,8 +100,6 @@ export default class Player extends MatterEntity {
             this.anims.play('idle', true);
         }
         this.weaponUpdate();
-        if (this.dashParticle) this.dashParticle.x = this.x - 15;
-        if (this.dashParticle) this.dashParticle.y = this.y + 13;
     }
 
     weaponUpdate() {
@@ -102,19 +124,6 @@ export default class Player extends MatterEntity {
         }
 
     }
-
-    dashForward() {
-        if (!this.isDashing) {
-
-
-            setTimeout(() => {
-                this.isDashing = false;
-                this.dashingCooldown = true;
-                setTimeout(() => this.dashingCooldown = false, 1000);
-            }, 250);
-        }
-    }
-
 
     CreateMiningCollisions(playerSensor) {
         this.scene.matterCollision.addOnCollideStart({
