@@ -9,6 +9,9 @@ function launch(containerId) {
     width: 640,
     height: 480,
     parent: containerId,
+    scale: {
+      zoom: 2,
+    },
     physics: {
       default: 'matter',
       matter: {
