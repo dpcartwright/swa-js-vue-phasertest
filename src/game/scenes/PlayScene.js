@@ -20,7 +20,7 @@ export default class PlayScene extends Scene {
     this.player = new Player({ scene: this, x: 100, y: 100, texture: 'alchemist', frame: 'alchemist_idle_1' });
     buildingLayer.setCollisionByProperty({ collides: true })
     this.matter.world.convertTilemapLayer(buildingLayer)
-    buildingLayer.setDepth(3);
+    //buildingLayer.setDepth(3);
     this.player.inputKeys = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
       down: Phaser.Input.Keyboard.KeyCodes.S,
