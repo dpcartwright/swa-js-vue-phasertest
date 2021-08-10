@@ -690,10 +690,11 @@
                  "objectgroup":
                     {
                      "draworder":"index",
+                     "id":2,
                      "name":"",
                      "objects":[
                             {
-                             "height":30,
+                             "height":24,
                              "id":1,
                              "name":"",
                              "rotation":0,
@@ -721,10 +722,11 @@
                  "objectgroup":
                     {
                      "draworder":"index",
+                     "id":2,
                      "name":"",
                      "objects":[
                             {
-                             "height":30,
+                             "height":24,
                              "id":1,
                              "name":"",
                              "rotation":0,
@@ -752,10 +754,11 @@
                  "objectgroup":
                     {
                      "draworder":"index",
+                     "id":2,
                      "name":"",
                      "objects":[
                             {
-                             "height":30,
+                             "height":24,
                              "id":1,
                              "name":"",
                              "rotation":0,
