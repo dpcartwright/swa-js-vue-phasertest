@@ -47,6 +47,40 @@ export default class Player extends MatterEntity {
 
     update() {
         if (this.dead) return;
+        if (this.scene.input.gamepad.total) {
+            this.scene.input.gamepad.on('down', (pad, button, value) => {
+                switch (button.index) {
+                    case 12: //up
+                        this.gamePadDPAD_UP = true;
+                        break;
+                    case 13: // down
+                        this.gamePadDPAD_DOWN = true;
+                        break;
+                    case 14: // left
+                        this.gamePadDPAD_LEFT = true;
+                        break;
+                    case 15: // right
+                        this.gamePadDPAD_RIGHT = true;
+                        break;
+                }
+            });
+            this.scene.input.gamepad.on('up', (pad, button, value) => {
+                switch (button.index) {
+                    case 12: //up
+                        this.gamePadDPAD_UP = false;
+                        break;
+                    case 13: // down
+                        this.gamePadDPAD_DOWN = false;
+                        break;
+                    case 14: // left
+                        this.gamePadDPAD_LEFT = false;
+                        break;
+                    case 15: // right
+                        this.gamePadDPAD_RIGHT = false;
+                        break;
+                }
+            });
+        }
         let speed = 2.5;
         let playerVelocity = new Phaser.Math.Vector2();
         if (!this.isDashing) {
@@ -81,15 +115,14 @@ export default class Player extends MatterEntity {
             speed = 5.5;
             playerVelocity.setToPolar(this.dashAngle);
         } else {
-            speed = 3;
-            if (this.inputKeys.left.isDown) {
+            if (this.inputKeys.left.isDown || this.gamePadDPAD_LEFT) {
                 playerVelocity.x = -1;
-            } else if (this.inputKeys.right.isDown) {
+            } else if (this.inputKeys.right.isDown || this.gamePadDPAD_RIGHT) {
                 playerVelocity.x = 1;
             }
-            if (this.inputKeys.up.isDown) {
+            if (this.inputKeys.up.isDown || this.gamePadDPAD_UP) {
                 playerVelocity.y = -1;
-            } else if (this.inputKeys.down.isDown) {
+            } else if (this.inputKeys.down.isDown || this.gamePadDPAD_DOWN) {
                 playerVelocity.y = 1;
             }
         }

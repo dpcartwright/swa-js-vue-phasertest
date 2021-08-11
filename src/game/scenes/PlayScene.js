@@ -35,11 +35,14 @@ export default class PlayScene extends Scene {
     camera.setLerp(0.1, 0.1);
     camera.setBounds(0, 0, 1280, 960);
     this.input.mouse.disableContextMenu();
+
   }
 
   update() {
+
     this.enemies.forEach(enemy => enemy.update());
     this.player.update();
     this.projectiles.forEach(projectile => projectile.update());
+
   }
 }

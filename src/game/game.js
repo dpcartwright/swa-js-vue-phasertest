@@ -10,8 +10,11 @@ function launch(containerId) {
     height: 720,
     parent: containerId,
     pixelArt: true,
+    input: {
+      gamepad: true
+    },
     scale: {
-      zoom: 1.,
+      zoom: 1,
     },
     physics: {
       default: 'matter',
