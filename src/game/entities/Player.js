@@ -10,7 +10,7 @@ export default class Player extends MatterEntity {
         this.touching = [];
         this.isDashing = false;
         this.dashingCooldown = false;
-        this.dashAngle = '';
+        this.dashVector = new Phaser.Math.Vector2();
         this.isAttacking = false;
         this.attackingCooldown = false;
         this.attackAngle = 0;
@@ -38,7 +38,6 @@ export default class Player extends MatterEntity {
         this.CreateMiningCollisions(playerSensor);
         this.CreatePickupCollisions(playerCollider);
 
-        this.scene.input.on('pointermove', pointer => { if (!this.dead) this.setFlipX(pointer.worldX < this.x) });
     }
 
     static preload(scene) {
@@ -47,9 +46,27 @@ export default class Player extends MatterEntity {
 
     update() {
         if (this.dead) return;
-        if (this.scene.input.gamepad.total) {
-            this.scene.input.gamepad.on('down', (pad, button, value) => {
+        let speed = 3.5;
+        this.playerVelocity = new Phaser.Math.Vector2();
+        this.playerAimVector = new Phaser.Math.Vector2();
+        this.gamepad = this.scene.input.gamepad;
+        if (this.gamepad.total) {
+            this.playerVelocity.x = this.gamepad.getPad(0).leftStick.x;
+            this.playerVelocity.y = this.gamepad.getPad(0).leftStick.y;
+            this.playerAimVector.x = this.gamepad.getPad(0).rightStick.x;
+            this.playerAimVector.y = this.gamepad.getPad(0).rightStick.y;
+            this.gamepad.on('down', (pad, button, value) => {
+                this.gamepadActive = pad;
                 switch (button.index) {
+                    case 5: //L2
+                        this.gamePad_ATTACK = true;
+                        break;
+                    case 6: //L2
+                        this.gamePad_DASH = true;
+                        break;
+                    case 7: //R2
+                        this.gamePad_R2 = true;
+                        break;
                     case 12: //up
                         this.gamePadDPAD_UP = true;
                         break;
@@ -64,8 +81,17 @@ export default class Player extends MatterEntity {
                         break;
                 }
             });
-            this.scene.input.gamepad.on('up', (pad, button, value) => {
+            this.gamepad.on('up', (pad, button, value) => {
                 switch (button.index) {
+                    case 5: //L2
+                        this.gamePad_ATTACK = false;
+                        break;
+                    case 6: //L2
+                        this.gamePad_DASH = false;
+                        break;
+                    case 7: //R2
+                        this.gamePad_R2 = false;
+                        break;
                     case 12: //up
                         this.gamePadDPAD_UP = false;
                         break;
@@ -80,13 +106,15 @@ export default class Player extends MatterEntity {
                         break;
                 }
             });
+
+
+            if (!this.dead) this.setFlipX(this.playerAimVector.x < 0);
         }
-        let speed = 2.5;
-        let playerVelocity = new Phaser.Math.Vector2();
+
         if (!this.isDashing) {
-            this.dashAngle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
+            this.dashVector = this.playerVelocity;
         }
-        if (!this.dashingCooldown && (this.inputKeys.dash.isDown || this.isDashing)) {
+        if (!this.dashingCooldown && (this.gamePad_DASH || this.isDashing)) {
             if (!this.isDashing) {
                 let particles = this.scene.add.particles('smoke');
 
@@ -113,35 +141,22 @@ export default class Player extends MatterEntity {
             }
             this.isDashing = true;
             speed = 5.5;
-            playerVelocity.setToPolar(this.dashAngle);
-        } else {
-            if (this.inputKeys.left.isDown || this.gamePadDPAD_LEFT) {
-                playerVelocity.x = -1;
-            } else if (this.inputKeys.right.isDown || this.gamePadDPAD_RIGHT) {
-                playerVelocity.x = 1;
-            }
-            if (this.inputKeys.up.isDown || this.gamePadDPAD_UP) {
-                playerVelocity.y = -1;
-            } else if (this.inputKeys.down.isDown || this.gamePadDPAD_DOWN) {
-                playerVelocity.y = 1;
-            }
+            this.playerVelocity.x = this.dashVector.x;
+            this.playerVelocity.y = this.dashVector.y;
         }
-        playerVelocity.normalize();
-        playerVelocity.scale(speed);
-        this.setVelocity(playerVelocity.x, playerVelocity.y);
+        this.playerVelocity.normalize();
+        this.playerVelocity.scale(speed);
+        this.setVelocity(this.playerVelocity.x, this.playerVelocity.y);
         if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.y) > 0.1) {
             this.anims.play('walk', true);
         } else {
             this.anims.play('idle', true);
         }
         this.weaponUpdate();
-        //console.log(this.leftMouseDown);
-        //console.log(this.rightMouseDown);
     }
 
     weaponUpdate() {
-        let aimingDirection = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
-        var deg = Phaser.Math.RadToDeg(aimingDirection);
+        var deg = Phaser.Math.RadToDeg(this.playerAimVector.angle());
         if (!this.flipX) {
             this.spriteWeapon.setOrigin(this.holdingWeapon.holding_origin_x, this.holdingWeapon.holding_origin_y);
             this.spriteWeapon.setAngle(this.holdingWeapon.holding_angle + deg);
@@ -153,9 +168,8 @@ export default class Player extends MatterEntity {
         }
         switch (this.holdingWeapon.weapon_behaviour) {
             case "bow":
-                this.aimingAngle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
-                if (this.inputMouse.buttons === 1) {
-                    this.bowCharging += 1; // left click
+                if (this.gamePad_ATTACK) {
+                    this.bowCharging += 1;
                     console.log(`bowCharging: ${this.bowCharging}`);
                 }
                 /*
@@ -163,7 +177,7 @@ export default class Player extends MatterEntity {
                 let angle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
                 const velocityVect = new Phaser.Math.Vector2();
                 velocityVect.setToPolar(angle);
-
+    
                 this.scene.projectiles.push(new Projectile({ scene: this.scene, x: this.x, y: this.y, texture: 'projectiles', frame: `${name}_1_1`, scale: 0.5, angle: angle, name: projectileType, velocityVect: velocityVect, speed: speed, parentEntity: this }));
                 */
                 break;
