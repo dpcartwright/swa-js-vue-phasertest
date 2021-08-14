@@ -3,20 +3,14 @@ import MatterEntity from "./MatterEntity.js";
 export default class Projectile extends MatterEntity {
 
     static preload(scene) {
-        scene.load.atlas('projectile', 'assets/images/projectile.png', 'assets/images/projectile_atlas.json');
-        scene.load.animation('projectile_anim', 'assets/images/projectile_anim.json');
-        scene.load.audio('fireball', 'assets/audio/fireball.wav');
-        scene.load.audio('iceball', 'assets/audio/iceball.wav');
-        scene.load.audio('shadowball', 'assets/audio/shadowball.wav');
     }
 
     constructor(data) {
-        let { scene, x, y, texture, frame, projectile, velocityVect, scale, angle, name, speed, parentEntity } = data;
-        super({ scene, x: x, y: y, texture: 'projectile', frame: `${name}_1_1`, name: name });
+        let { scene, x, y, texture, frame, projectile, velocityVect, scale, name, speed, parentEntity } = data;
+        super({ scene, x: x, y: y, texture: 'items', name: name, frame });
         this.setScale(scale);
         this.x = x;
         this.y = y;
-        this.angle = angle;
         this.speed = speed;
         this.scene = scene;
         this.velocityVect = velocityVect;
@@ -43,7 +37,7 @@ export default class Projectile extends MatterEntity {
             context: this.scene,
         });
 
-        this.setRotation(angle);
+        this.setAngle(Phaser.Math.RadToDeg(this.velocityVect.angle()) + 120);
     }
 
     impact = (target) => {
@@ -59,7 +53,6 @@ export default class Projectile extends MatterEntity {
 
     update() {
         if (this.dead) return;
-        this.anims.play(`${this.name}`, true);
         this.setVelocityX(this.velocityVect.x * this.speed);
         this.setVelocityY(this.velocityVect.y * this.speed);
     }

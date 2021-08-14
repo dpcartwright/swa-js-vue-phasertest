@@ -36,6 +36,7 @@ export default class PlayScene extends Scene {
     camera.setBounds(0, 0, 1280, 960);
     this.input.mouse.disableContextMenu();
 
+
   }
 
   update() {
@@ -43,6 +44,7 @@ export default class PlayScene extends Scene {
     this.enemies.forEach(enemy => enemy.update());
     this.player.update();
     this.projectiles.forEach(projectile => projectile.update());
+    //console.log(this.sys.game.loop.time.toString());
 
   }
 }

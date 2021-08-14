@@ -1,5 +1,6 @@
 
 import MatterEntity from "./MatterEntity.js";
+import Projectile from "./Projectile.js";
 import items from "../lists/items.js";
 
 export default class Player extends MatterEntity {
@@ -16,6 +17,7 @@ export default class Player extends MatterEntity {
         this.attackAngle = 0;
         this.bowCharging = 0;
         this.inputMouse = this.scene.input.activePointer;
+        this.particleXOffset = 5;
         //this.inventory = new Inventory();
 
         //Weapon
@@ -108,7 +110,15 @@ export default class Player extends MatterEntity {
             });
 
 
-            if (!this.dead) this.setFlipX(this.playerAimVector.x < 0);
+            if (!this.dead) {
+                this.setFlipX(this.playerAimVector.x < 0);
+                if (this.flipX) {
+
+                    this.particleXOffset = 5;
+                } else {
+                    this.particleXOffset = -5;
+                }
+            }
         }
 
         if (!this.isDashing) {
@@ -116,6 +126,7 @@ export default class Player extends MatterEntity {
         }
         if (!this.dashingCooldown && (this.gamePad_DASH || this.isDashing)) {
             if (!this.isDashing) {
+
                 let particles = this.scene.add.particles('smoke');
 
                 particles.createEmitter({
@@ -129,7 +140,7 @@ export default class Player extends MatterEntity {
                     blendMode: 'ADD',
                     frequency: 50,
                     follow: this,
-                    followOffset: { y: 14, x: -5 }
+                    followOffset: { y: 14, x: this.particleXOffset }
                 })
 
                 setTimeout(() => {
@@ -171,6 +182,14 @@ export default class Player extends MatterEntity {
                 if (this.gamePad_ATTACK) {
                     this.bowCharging += 1;
                     console.log(`bowCharging: ${this.bowCharging}`);
+                } else {
+                    if (this.playerAimVector.x != 0 || this.playerAimVector.y != 0) {
+                        if (this.bowCharging >= 10) {
+                            this.scene.projectiles.push(new Projectile({ scene: this.scene, x: this.spriteWeapon.x + this.particleXOffset, y: this.spriteWeapon.y, texture: 'items', scale: 0.25, name: 'arrow', frame: 9, velocityVect: this.playerAimVector, speed: 5, parentEntity: this }));
+
+                        }
+                    }
+                    this.bowCharging = 0;
                 }
                 /*
                 let speed = 3;
