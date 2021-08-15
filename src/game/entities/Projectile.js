@@ -37,7 +37,7 @@ export default class Projectile extends MatterEntity {
             context: this.scene,
         });
 
-        this.setAngle(Phaser.Math.RadToDeg(this.velocityVect.angle()) + 120);
+        this.setAngle(Phaser.Math.RadToDeg(this.velocityVect.angle()) + 130);
     }
 
     impact = (target) => {

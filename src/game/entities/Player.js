@@ -21,12 +21,8 @@ export default class Player extends MatterEntity {
         //this.inventory = new Inventory();
 
         //Weapon
-        this.holdingWeapon = items.basic_bow;
-
-        this.spriteWeapon = new Phaser.GameObjects.Sprite(this.scene, 0, 0, 'items', this.holdingWeapon.frame);
-        this.spriteWeapon.setScale(this.holdingWeapon.holding_scale);
-        this.spriteWeapon.setOrigin(this.holdingWeapon.holding_origin_x, this.holdingWeapon.holding_origin_y);
-        this.scene.add.existing(this.spriteWeapon);
+        this.holdingWeapon = items.basic_sword;
+        this.changeWeapon(this.holdingWeapon);
 
         const { Body, Bodies } = Phaser.Physics.Matter.Matter;
         var playerCollider = Bodies.circle(this.x, this.y + 10, 10, { isSensor: false, label: 'playerCollider' });
@@ -60,9 +56,12 @@ export default class Player extends MatterEntity {
             this.gamepad.on('down', (pad, button, value) => {
                 this.gamepadActive = pad;
                 switch (button.index) {
+                    case 4: //L1
+                        this.gamePad_L1 = true;
+                        break;
                     case 5: //L2
                         this.gamePad_ATTACK = true;
-                        break;
+                    break;
                     case 6: //L2
                         this.gamePad_DASH = true;
                         break;
@@ -85,6 +84,9 @@ export default class Player extends MatterEntity {
             });
             this.gamepad.on('up', (pad, button, value) => {
                 switch (button.index) {
+                    case 4: //L1
+                        this.gamePad_L1 = false;
+                        break;
                     case 5: //L2
                         this.gamePad_ATTACK = false;
                         break;
@@ -124,6 +126,22 @@ export default class Player extends MatterEntity {
         if (!this.isDashing) {
             this.dashVector = this.playerVelocity;
         }
+
+        if (this.gamePad_L1) {
+            switch (this.holdingWeapon.weapon_behaviour) {
+                case "sword":
+                    this.holdingWeapon = items.basic_bow;
+                    break;
+                case "bow":
+                    this.holdingWeapon = items.basic_staff;
+                    break;
+                case "spell":
+                    this.holdingWeapon = items.basic_sword;
+                    break;
+            }
+            this.changeWeapon(this.holdingWeapon);
+        }
+
         if (!this.dashingCooldown && (this.gamePad_DASH || this.isDashing)) {
             if (!this.isDashing) {
 
@@ -166,6 +184,14 @@ export default class Player extends MatterEntity {
         this.weaponUpdate();
     }
 
+    changeWeapon(weapon) {
+        if (this.spriteWeapon) this.spriteWeapon.destroy();
+        this.spriteWeapon = new Phaser.GameObjects.Sprite(this.scene, 0, 0, 'items', this.holdingWeapon.frame);
+        this.spriteWeapon.setScale(this.holdingWeapon.holding_scale);
+        this.spriteWeapon.setOrigin(this.holdingWeapon.holding_origin_x, this.holdingWeapon.holding_origin_y);
+        this.scene.add.existing(this.spriteWeapon);
+    }
+
     weaponUpdate() {
         var deg = Phaser.Math.RadToDeg(this.playerAimVector.angle());
         if (!this.flipX) {
@@ -191,16 +217,21 @@ export default class Player extends MatterEntity {
                     }
                     this.bowCharging = 0;
                 }
-                /*
-                let speed = 3;
-                let angle = Phaser.Math.Angle.BetweenPoints(this.position, { x: this.scene.input.activePointer.worldX, y: this.scene.input.activePointer.worldY });
-                const velocityVect = new Phaser.Math.Vector2();
-                velocityVect.setToPolar(angle);
-    
-                this.scene.projectiles.push(new Projectile({ scene: this.scene, x: this.x, y: this.y, texture: 'projectiles', frame: `${name}_1_1`, scale: 0.5, angle: angle, name: projectileType, velocityVect: velocityVect, speed: speed, parentEntity: this }));
-                */
                 break;
             case "sword":
+                if (this.gamePad_ATTACK && !this.attackingCooldown) {
+                    this.attackingCooldown = true;
+                    console.log(`swordAttack: ${this.attackingCooldown}`);
+                    // need to change this to create a new mattery entity and insta destory?  or maybe there's a less crappy way
+                    /* 
+                    const { Body, Bodies } = Phaser.Physics.Matter.Matter;
+                    let swordSensor = Bodies.circle(this.spriteWeapon.x + this.particleXOffset, this.spriteWeapon.y, 12, { isSensor: true, label: 'swordSensor' });
+                    const swordBody = Body.create({
+                        parts: [swordSensor],
+                        frictionAir: 0.35,
+                    });
+                    this.spriteWeapon.setExistingBody(swordBody);*/
+                }
                 break;
             case "spell":
                 break;
