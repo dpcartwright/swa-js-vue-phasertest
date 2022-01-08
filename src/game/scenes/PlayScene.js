@@ -21,6 +21,7 @@ export default class PlayScene extends Scene {
     buildingLayer.setCollisionByProperty({ collides: true })
     this.matter.world.convertTilemapLayer(buildingLayer)
     //buildingLayer.setDepth(3);
+    this.map.getObjectLayer('Enemies').objects.forEach(enemy => this.enemies.push(new Enemy({ scene: this, enemy })));
     this.player.inputKeys = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
       down: Phaser.Input.Keyboard.KeyCodes.S,
